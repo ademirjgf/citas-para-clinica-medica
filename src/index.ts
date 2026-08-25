@@ -15,14 +15,9 @@ app.use(cors());
 app.use(express.json());
 app.use('/recetas', recetasRouter);
 app.use('/citas',citasRouter);
-app.get("/pacientes", getpatients);
-app.get("/pacientes/:id", getPatientsById);
-app.post("/pacientes", postPatients);
-app.put("/pacientes/:id", putPatientsById);
-app.delete("/pacientes/:id", deletePatientByID);
 app.use("/recetas", recetasRouter);
 app.use("/medicos", medicosRouter); //conectamos las rutas de médicos
-app.use("/citas", citasRouter);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
