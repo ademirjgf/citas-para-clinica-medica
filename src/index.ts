@@ -1,11 +1,3 @@
-import {
-  deletePatientByID,
-  getpatients,
-  getPatientsById,
-  pacientesRouter,
-  postPatients,
-  putPatientsById,
-} from "./routes/pacientes.routes.js";
 import { pool } from "./config/db.js";
 import { totalmem } from "node:os";
 import { json } from "node:stream/consumers";
