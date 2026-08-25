@@ -1,6 +1,6 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
-import { pool } from "../db.js";
+import { pool } from "../config/db.js";
 
 export const pacientesRouter = Router();
 
