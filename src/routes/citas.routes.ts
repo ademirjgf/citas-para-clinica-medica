@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
 import { pool } from "../config/db.js";
-import type { citaFiltrada } from "../types/citas.types.js";
+import type { citaFiltrada } from "../models/citas.types.js";
 
 export const citasRouter = Router();
 
