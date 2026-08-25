@@ -14,7 +14,7 @@ import { Result } from "pg";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { recetasRouter } from "./routes/recetas.routes.js";
+import recetasRouter from './routes/recetas.routes.js';
 import { medicosRouter } from "./routes/medicos.routes.js";
 import { citasRouter } from "./routes/citas.routes.js";
 
