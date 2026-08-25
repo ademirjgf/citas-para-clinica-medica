@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import { citaModel } from "../models/citas.model.js";
 
 export async function getCitas(req: Request, res: Response) {
+  // #swagger.tags = ['Citas']
+  // #swagger.summary = 'Ver todas las Citas'
   try {
     const cita = await citaModel.findAll();
     res.json({ totalCitas: cita.length, data: cita });
@@ -14,6 +16,8 @@ export async function getCitas(req: Request, res: Response) {
 }
 
 export async function getCitasById(req: Request, res: Response) {
+  // #swagger.tags = ['Citas']
+  // #swagger.summary = 'Ver la Cita por Id'
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) {
@@ -53,6 +57,8 @@ export async function getCitasByFecha(req: Request, res: Response) {
 }
 
 export async function postCita(req: Request, res: Response) {
+  // #swagger.tags = ['Citas']
+  // #swagger.summary = 'Crear una nueva Cita'
   try {
     const { paciente_id, medico_id, fecha_hora, motivo, estado } = req.body;
     if (!paciente_id || !medico_id || !fecha_hora || !motivo || !estado){
@@ -66,6 +72,8 @@ export async function postCita(req: Request, res: Response) {
 }
 
 export async function putCita(req: Request, res: Response) {
+  // #swagger.tags = ['Citas']
+  // #swagger.summary = 'Modificar la Cita por Id'
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) {
@@ -83,6 +91,8 @@ export async function putCita(req: Request, res: Response) {
 }
 
 export async function deleteCita(req: Request, res: Response) {
+  // #swagger.tags = ['Citas']
+  // #swagger.summary = 'Eliminar la Cita por Id'
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) {
