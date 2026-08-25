@@ -1,8 +1,3 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { recetasRouter } from './routes/recetas.routes.js';
-import citasRouter from "./routes/citas.routes.js"
 import {
   deletePatientByID,
   getpatients,
@@ -12,11 +7,15 @@ import {
   putPatientsById,
 } from "./routes/pacientes.routes.js";
 import { pool } from "./config/db.js";
-import type { Request, Response } from "express";
 import { totalmem } from "node:os";
 import { json } from "node:stream/consumers";
 import { Result } from "pg";
-
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import { recetasRouter } from "./routes/recetas.routes.js";
+import { medicosRouter } from "./routes/medicos.routes.js";
+import  citasRouter  from "./routes/citas.routes.js";
 dotenv.config();
 
 const app = express();
