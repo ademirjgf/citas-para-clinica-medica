@@ -1,5 +1,9 @@
 import type { Request, Response } from "express";
 import { citaModel } from "../models/citas.model.js";
+import {
+  createCitaSchema,
+  updateCitaSchema,
+} from "../schemas/citas.schema.js";
 
 export async function getCitas(req: Request, res: Response) {
   // #swagger.tags = ['Citas']
@@ -60,11 +64,13 @@ export async function postCita(req: Request, res: Response) {
   // #swagger.tags = ['Citas']
   // #swagger.summary = 'Crear una nueva Cita'
   try {
-    const { paciente_id, medico_id, fecha_hora, motivo, estado } = req.body;
-    if (!paciente_id || !medico_id || !fecha_hora || !motivo || !estado){
-      res.status(400).json({ error: "faltan datos obligatorios" });
+    const result = createCitaSchema.safeParse(req.body);
+    console.log(result);
+
+    if (!result.success) {
+      return res.status(400).json({ error: result.error.issues });
     }
-    const newCita = await citaModel.create({ paciente_id, medico_id, fecha_hora, motivo, estado });
+    const newCita = await citaModel.create(result.data);
     res.status(201).json({ data: newCita });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -78,10 +84,18 @@ export async function putCita(req: Request, res: Response) {
     const id = Number(req.params.id);
     if (isNaN(id)) {
       res.status(400).json({ error: "EL ID DEBE SER UN VALOR NUMERICO" });
+      return;
     }
-    const productoUpdate = await citaModel.update(id, req.body);
+
+    const result = updateCitaSchema.safeParse(req.body);
+    if (!result.success) {
+      res.status(400).json({ error: result.error.issues });
+      return;
+    }
+
+    const productoUpdate = await citaModel.update(id, result.data);
     if (!productoUpdate) {
-      res.status(404).json({ error: "cita no encontrado" });
+      res.status(404).json({ error: "producto no encontrado" });
       return;
     }
     res.json({ data: productoUpdate });
