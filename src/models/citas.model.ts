@@ -1,4 +1,6 @@
+import type { z } from "zod";
 import { pool } from "../config/db.js";
+import type { updateCitaSchema } from "../schemas/citas.schema.js";
 
 export interface citaMedica{
     id: number;
@@ -10,7 +12,7 @@ export interface citaMedica{
 }
 
 export type createCitaInput = Omit<citaMedica, "id">;
-export type updateCitaInput = Partial<createCitaInput>;
+export type updateCitaInput = z.infer<typeof updateCitaSchema>;
 
 export const citaModel = {
     findAll: async (): Promise<citaMedica[]> => {
@@ -48,22 +50,27 @@ export const citaModel = {
     dato: updateCitaInput,
   ): Promise<citaMedica | null> => {
     const { rows } = await pool.query(
-      `UPDATE productos
+      `UPDATE citas
             SET paciente_id = $1,
             medico_id = $2,
             fecha_hora = $3,
             motivo = $4,
-            estado = $ 5
+            estado = $5
             WHERE id = $6
             RETURNING *;
 `,
-      [dato.paciente_id, dato.medico_id, dato.fecha_hora, dato.motivo, dato.estado, id],
+      [dato.paciente_id ?? (await pool.query('SELECT paciente_id FROM citas WHERE id = $1 ',[id])).rows[0].paciente_id,
+        dato.medico_id ?? (await pool.query('SELECT medico_id FROM citas WHERE id = $1 ',[id])).rows[0].medico_id,
+        dato.fecha_hora ?? (await pool.query('SELECT fecha_hora FROM citas WHERE id = $1 ',[id])).rows[0].fecha_hora,
+        dato.motivo ?? (await pool.query('SELECT motivo FROM citas WHERE id = $1 ',[id])).rows[0].motivo,
+        dato.estado ?? (await pool.query('SELECT estado FROM citas WHERE id = $1 ',[id])).rows[0].estado,
+        id],
     );
     return rows[0] || null;
   },
   delete: async (id: number): Promise<boolean> => {
     const { rowCount } = await pool.query(
-      "DELETE FROM productos WHERE id = $1;",
+      "DELETE FROM citas WHERE id = $1;",
       [id],
     );
     return (rowCount ?? 0) > 0;

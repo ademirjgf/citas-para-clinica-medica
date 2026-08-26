@@ -13,6 +13,10 @@
   "paths": {
     "/pacientes": {
       "get": {
+        "tags": [
+          "Pacientes"
+        ],
+        "summary": "Ver todos los Pacientes",
         "description": "",
         "responses": {
           "200": {
@@ -24,6 +28,10 @@
         }
       },
       "post": {
+        "tags": [
+          "Pacientes"
+        ],
+        "summary": "Crear un nuevo Paciente",
         "description": "",
         "parameters": [
           {
@@ -52,8 +60,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
           },
           "400": {
             "description": "Bad Request"
@@ -66,6 +74,10 @@
     },
     "/pacientes/{id}": {
       "get": {
+        "tags": [
+          "Pacientes"
+        ],
+        "summary": "Ver todos los Pacientes por ID",
         "description": "",
         "parameters": [
           {
@@ -82,15 +94,16 @@
           "400": {
             "description": "Bad Request"
           },
-          "404": {
-            "description": "Not Found"
-          },
           "500": {
             "description": "Internal Server Error"
           }
         }
       },
       "put": {
+        "tags": [
+          "Pacientes"
+        ],
+        "summary": "Actualizar un Paciente",
         "description": "",
         "parameters": [
           {
@@ -98,35 +111,11 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "nombre": {
-                  "example": "any"
-                },
-                "apellidos": {
-                  "example": "any"
-                },
-                "edad": {
-                  "example": "any"
-                },
-                "telefono": {
-                  "example": "any"
-                },
-                "seguro_medico": {
-                  "example": "any"
-                }
-              }
-            }
           }
         ],
         "responses": {
-          "202": {
-            "description": "Accepted"
+          "200": {
+            "description": "OK"
           },
           "400": {
             "description": "Bad Request"
@@ -140,6 +129,10 @@
         }
       },
       "delete": {
+        "tags": [
+          "Pacientes"
+        ],
+        "summary": "Eliminar un Paciente",
         "description": "",
         "parameters": [
           {
@@ -155,6 +148,9 @@
           },
           "400": {
             "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -311,19 +307,152 @@
         }
       }
     },
-    "/medicos/": {
+    "/citas/": {
       "get": {
+        "tags": [
+          "Citas"
+        ],
+        "summary": "Ver todas las Citas",
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Citas"
+        ],
+        "summary": "Crear una nueva Cita",
+        "description": "",
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/citas/{id}": {
+      "get": {
+        "tags": [
+          "Citas"
+        ],
+        "summary": "Ver la Cita por Id",
         "description": "",
         "parameters": [
           {
-            "name": "especialidad",
-            "in": "query",
+            "name": "id",
+            "in": "path",
+            "required": true,
             "type": "string"
           }
         ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Citas"
+        ],
+        "summary": "Modificar la Cita por Id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Citas"
+        ],
+        "summary": "Eliminar la Cita por Id",
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/citas/fecha": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/medicos/": {
+      "get": {
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -342,13 +471,13 @@
                 "especialidad": {
                   "example": "any"
                 },
+                "telefono": {
+                  "example": "any"
+                },
                 "turno": {
                   "example": "any"
                 },
                 "activo": {
-                  "example": "any"
-                },
-                "telefono": {
                   "example": "any"
                 }
               }
@@ -358,6 +487,12 @@
         "responses": {
           "201": {
             "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -377,8 +512,14 @@
           "200": {
             "description": "OK"
           },
+          "400": {
+            "description": "Bad Request"
+          },
           "404": {
             "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -414,100 +555,6 @@
           "200": {
             "description": "OK"
           },
-          "404": {
-            "description": "Not Found"
-          }
-        }
-      },
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          }
-        }
-      }
-    },
-    "/citas/": {
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/citas/fecha": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "fecha_hora",
-            "in": "query",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/citas/{id}": {
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "paciente_id": {
-                  "example": "any"
-                },
-                "medico_id": {
-                  "example": "any"
-                },
-                "fecha_hora": {
-                  "example": "any"
-                },
-                "motivo": {
-                  "example": "any"
-                },
-                "estado": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "202": {
-            "description": "Accepted"
-          },
           "400": {
             "description": "Bad Request"
           },
@@ -535,6 +582,9 @@
           },
           "400": {
             "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
