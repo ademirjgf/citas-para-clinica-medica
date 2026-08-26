@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+console.log("router de pacientes cargado");
 app.use("/pacientes", pacientesRouter);
 app.use("/recetas", recetasRouter);
 app.use("/medicos", medicosRouter);

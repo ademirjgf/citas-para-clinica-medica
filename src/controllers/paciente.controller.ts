@@ -1,20 +1,39 @@
 import type { Request, Response } from "express";
-import { PatientModel } from "../models/paciente.model.js";
+import {
+  PatientModel,
+  type UpdatePatientInput,
+} from "../models/paciente.model.js";
+import {
+  createPatientSchema,
+  updatePatientSchema,
+} from "../schemas/paciente.schema.js";
+import type {
+  createCitaInput,
+  updateCitaInput,
+} from "../models/citas.model.js";
 
 export async function getPatients(req: Request, res: Response) {
-  // #swagger.tags = ['Pacientes']
-  // #swagger.summary = 'Ver todos los Pacientes'
   try {
-    const paciente = await PatientModel.findAll();
-    res.json({ totalPacientes: paciente.length, data: paciente });
-  } catch (error) {
-    console.error("error al consultar PostgreSQL: ");
+    //LEER el parámetro desde la URL
+    const { seguro_medico } = req.query;
+    const filtro =
+      typeof seguro_medico === "string" ? seguro_medico : undefined;
+
+    //ENVIARLO al modelo
+    const paciente = await PatientModel.findAll(filtro);
+
+    res.json({
+      totalPacientes: paciente.length,
+      data: paciente,
+    });
+  } catch (error: any) {
+    console.error("error al consultar PostgreSQL:", error.message);
     res.status(500).json({
-      message: "error al intentar conectar a la base de datos :c",
+      message: "error al intentar conectar a la base de datos",
+      detalle: error.message, // ✅ Para ver el error real
     });
   }
 }
-
 export async function getPatientsById(req: Request, res: Response) {
   // #swagger.tags = ['Pacientes']
   // #swagger.summary = 'Ver todos los Pacientes por ID'
@@ -39,17 +58,11 @@ export async function postPatients(req: Request, res: Response) {
   // #swagger.tags = ['Pacientes']
   // #swagger.summary = 'Crear un nuevo Paciente'
   try {
-    const { nombre, apellidos, edad, telefono, seguro_medico } = req.body;
-    if (!nombre || !apellidos || !edad || !telefono) {
-      res.status(400).json({ error: "faltan datos que son obligatorios" });
+    const resultado = createPatientSchema.safeParse(req.body);
+    if (!resultado.success) {
+      return res.status(400).json({ error: resultado.error.issues });
     }
-    const nuevoPaciente = await PatientModel.create({
-      nombre,
-      apellidos,
-      edad,
-      telefono,
-      seguro_medico,
-    });
+    const nuevoPaciente = await PatientModel.create(resultado.data);
     res.status(201).json({ data: nuevoPaciente });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -62,13 +75,30 @@ export async function putPatientsById(req: Request, res: Response) {
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) {
-      res.status(400).json({ error: "El ID debe ser un numero" });
+      return res.status(400).json({ error: "El ID debe ser un número" });
     }
-    const pacienteUpdate = await PatientModel.update(id, req.body);
+    const validacion = updatePatientSchema.safeParse(req.body);
+    if (!validacion.success) {
+      return res.status(400).json({ error: validacion.error.issues });
+    }
+
+    // ✅ SOLO enviamos los campos que SÍ tienen valor
+    const entrada = validacion.data;
+    const datosParaEnviar: Partial<UpdatePatientInput> = {};
+
+    if (entrada.nombre) datosParaEnviar.nombre = entrada.nombre;
+    if (entrada.apellidos) datosParaEnviar.apellidos = entrada.apellidos;
+    if (entrada.edad !== undefined) datosParaEnviar.edad = entrada.edad;
+    if (entrada.telefono) datosParaEnviar.telefono = entrada.telefono;
+    if (entrada.seguro_medico !== undefined)
+      datosParaEnviar.seguro_medico = entrada.seguro_medico;
+
+    const pacienteUpdate = await PatientModel.update(id, datosParaEnviar);
+
     if (!pacienteUpdate) {
-      res.status(404).json({ error: "Paciente no encontrado" });
-      return;
+      return res.status(404).json({ error: "Paciente no encontrado" });
     }
+
     res.json({ data: pacienteUpdate });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
