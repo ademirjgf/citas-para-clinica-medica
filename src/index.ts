@@ -1,7 +1,6 @@
 import { pool } from "./config/db.js";
 import type { Request, Response } from "express";
-import { totalmem } from "node:os";
-import { json } from "node:stream/consumers";
+import totalmem from "node:os";
 import { Result } from "pg";
 import express from "express";
 import cors from "cors";
@@ -16,15 +15,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-
-dotenv.config();
-
-app.use(cors());
 app.use(express.json());
 
 app.use("/pacientes", pacientesRouter);
 app.use("/recetas", recetasRouter);
-app.use("/medicos", medicosRouter); //conectamos las rutas de médicos
+app.use("/medicos", medicosRouter);
 app.use("/citas", citasRouter);
 
 app.listen(PORT, () => {
