@@ -1,3 +1,7 @@
+import { pool } from "./config/db.js";
+import type { Request, Response } from "express";
+import totalmem from "node:os";
+import { Result } from "pg";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -16,6 +20,7 @@ import {
 
 dotenv.config();
 
+dotenv.config();
 const app = express();
 
 app.use(cors());
@@ -35,7 +40,6 @@ app.use("/recetas", recetasRouter);
 app.use("/medicos", medicosRouter);
 app.use("/citas", citasRouter);
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
