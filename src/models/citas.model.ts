@@ -55,15 +55,15 @@ export const citaModel = {
             medico_id = $2,
             fecha_hora = $3,
             motivo = $4,
-            estado = $ 5
+            estado = $5
             WHERE id = $6
             RETURNING *;
 `,
-      [dato.paciente_id ?? await pool.query('SELECT paciente_id FROM citas WHERE id = $1',[id]),
-        dato.medico_id ?? await pool.query('SELECT medico_id FROM citas WHERE id = $1',[id]),
-        dato.fecha_hora ?? await pool.query('SELECT fecha_hora FROM citas WHERE id = $1',[id]),
-        dato.motivo ?? await pool.query('SELECT motivo FROM citas WHERE id = $1',[id]),
-        dato.estado ?? await pool.query('SELECT estado FROM citas WHERE id = $1',[id]),
+      [dato.paciente_id ?? (await pool.query('SELECT paciente_id FROM citas WHERE id = $1 ',[id])).rows[0].paciente_id,
+        dato.medico_id ?? (await pool.query('SELECT medico_id FROM citas WHERE id = $1 ',[id])).rows[0].medico_id,
+        dato.fecha_hora ?? (await pool.query('SELECT fecha_hora FROM citas WHERE id = $1 ',[id])).rows[0].fecha_hora,
+        dato.motivo ?? (await pool.query('SELECT motivo FROM citas WHERE id = $1 ',[id])).rows[0].motivo,
+        dato.estado ?? (await pool.query('SELECT estado FROM citas WHERE id = $1 ',[id])).rows[0].estado,
         id],
     );
     return rows[0] || null;
