@@ -2,7 +2,7 @@ import { Router } from "express";
 import { pool } from "../config/db.js"; //pool para consultas a postgreSql
 
 //router para médicos
-const medicosRouter = Router();
+const medicosRouter: Router = Router();
 
 //endpoint obtener todos los médicos
 medicosRouter.get("/", async (req, res) => {
