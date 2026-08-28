@@ -17,7 +17,7 @@ import {
   putPatientsById,
   deletePatientByID,
 } from "./controllers/paciente.controller.js";
-
+const PORT = process.env.PORT || 3000;
 dotenv.config();
 
 dotenv.config();
