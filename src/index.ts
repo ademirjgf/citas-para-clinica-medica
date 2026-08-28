@@ -1,33 +1,33 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import recetasRouter from './routes/recetas.routes.js';
+import fs from "fs";
+import swaggerUi from "swagger-ui-express";
+import recetasRouter from "./routes/recetas.routes.js";
 import { medicosRouter } from "./routes/medicos.routes.js";
-import  citasRouter  from "./routes/citas.routes.js";
-import { 
-  getPatients,
-  getPatientsById,
-  postPatients,
-  putPatientsById,
-  deletePatientByID
- } from "./controllers/paciente.controller.js";
+import citasRouter from "./routes/citas.routes.js";
+import { pacientesRouter } from "./routes/pacientes.routes.js";
+
 dotenv.config();
 
+dotenv.config();
+const PORT = process.env.PORT || 3000;
 const app = express();
+const PORT = process.env.PORT || 3000;
+
 app.use(cors());
 app.use(express.json());
-app.use('/recetas', recetasRouter);
-app.use('/citas',citasRouter);
-app.get("/pacientes", getPatients);
-app.get("/pacientes/:id", getPatientsById);
-app.post("/pacientes", postPatients);
-app.put("/pacientes/:id", putPatientsById);
-app.delete("/pacientes/:id", deletePatientByID);
+
+const swaggerFile = JSON.parse(
+  fs.readFileSync(new URL("../swagger-output.json", import.meta.url), "utf-8"),
+);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
+
+app.use("/pacientes", pacientesRouter);
 app.use("/recetas", recetasRouter);
-app.use("/medicos", medicosRouter); //conectamos las rutas de médicos
+app.use("/medicos", medicosRouter);
 app.use("/citas", citasRouter);
 
-const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

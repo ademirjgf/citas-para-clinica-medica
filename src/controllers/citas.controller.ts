@@ -4,13 +4,14 @@ import {
   createCitaSchema,
   updateCitaSchema,
 } from "../schemas/citas.schema.js";
+import { citaService } from "../schemas/citas.service.js";
 
 export async function getCitas(req: Request, res: Response) {
   // #swagger.tags = ['Citas']
   // #swagger.summary = 'Ver todas las Citas'
   try {
-    const cita = await citaModel.findAll();
-    res.json({ totalCitas: cita.length, data: cita });
+     const result = await citaService.getCitasFilters(req.query);
+    res.json(result);
   } catch (error) {
     console.error("error al consultar PostgreSQL: ");
     res.status(500).json({

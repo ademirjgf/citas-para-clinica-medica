@@ -2,7 +2,7 @@ import { Router } from "express";
 import { getMedicos, getMedicoById, postMedico, putMedico, deleteMedico } from "../controllers/medico.controller.js"; 
 
 //router para médicos
-const medicosRouter = Router();
+const medicosRouter: Router = Router();
 
 //obtenemos todos los médicos
 medicosRouter.get("/", getMedicos);

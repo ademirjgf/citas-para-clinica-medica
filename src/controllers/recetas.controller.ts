@@ -33,12 +33,7 @@ export async function getRecetaById(req: Request, res: Response) {
 
 export async function postReceta(req: Request, res: Response) {
   try {
-    const { citaId, medicamentos, indicaciones, fechaEmision } = req.body;
-    if (!citaId || !Array.isArray(medicamentos) || medicamentos.length === 0) {
-      res.status(400).json({ error: "citaId y medicamentos (array) son obligatorios" });
-      return;
-    }
-    const nuevaReceta = await RecetaModel.create({ citaId, medicamentos, indicaciones, fechaEmision });
+    const nuevaReceta = await RecetaModel.create(req.body);
     res.status(201).json({ data: nuevaReceta });
   } catch (error) {
     console.error(error);
@@ -53,8 +48,7 @@ export async function putReceta(req: Request, res: Response) {
       res.status(400).json({ error: "El id debe ser numerico" });
       return;
     }
-    const { medicamentos, indicaciones } = req.body;
-    const recetaActualizada = await RecetaModel.update(id, { medicamentos, indicaciones });
+    const recetaActualizada = await RecetaModel.update(id, req.body);
     if (!recetaActualizada) {
       res.status(404).json({ error: "Receta no encontrada" });
       return;
@@ -65,7 +59,6 @@ export async function putReceta(req: Request, res: Response) {
     res.status(500).json({ error: "Error al actualizar la receta" });
   }
 }
-
 export async function deleteReceta(req: Request, res: Response) {
   try {
     const id = Number(req.params.id);
