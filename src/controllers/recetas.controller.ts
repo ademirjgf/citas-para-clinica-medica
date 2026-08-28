@@ -1,11 +1,14 @@
 import type { Request, Response } from "express";
 import { RecetaModel } from "../models/receta.model.js";
+import { recetaService } from "../services/receta.service.js";
+import type { recetaQueryParams } from "../schemas/recetas.schema.js";
 
 export async function getRecetas(req: Request, res: Response) {
   try {
-    const citaId = req.query.citaId ? Number(req.query.citaId) : undefined;
-    const recetas = await RecetaModel.findAll(citaId);
-    res.json({ total: recetas.length, data: recetas });
+    const resultado = await recetaService.getRecetasFilters(
+      req.query as recetaQueryParams,
+    );
+    res.json(resultado);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error al obtener las recetas" });
@@ -33,7 +36,13 @@ export async function getRecetaById(req: Request, res: Response) {
 
 export async function postReceta(req: Request, res: Response) {
   try {
-    const nuevaReceta = await RecetaModel.create(req.body);
+    const { citaId, medicamentos, indicaciones, fechaEmision } = req.body;
+    const nuevaReceta = await recetaService.createReceta(
+      citaId,
+      medicamentos,
+      indicaciones,
+      fechaEmision,
+    );
     res.status(201).json({ data: nuevaReceta });
   } catch (error) {
     console.error(error);

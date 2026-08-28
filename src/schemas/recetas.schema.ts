@@ -23,3 +23,10 @@ export const updateRecetaSchema = z
   .refine((data) => Object.keys(data).length > 0, {
     message: "Debes enviar al menos un campo para actualizar",
   });
+
+export interface recetaQueryParams {
+  page?: string;
+  limit?: string;
+  citaId?: string;
+  search?: string;
+}
