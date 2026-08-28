@@ -13,3 +13,11 @@ export const updateCitaSchema = createCitaSchema
   .refine((data) => Object.keys(data).length > 0, {
     message: "Debes enviar al menos un campo para actualizar",
   });
+
+export interface citasQueryParams {
+  page?: string;
+  limit?: string;
+  search?: string;
+  minFecha?: string;
+  maxFecha?: string;
+}

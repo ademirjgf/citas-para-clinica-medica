@@ -19,8 +19,7 @@ import {
 } from "./controllers/paciente.controller.js";
 const PORT = process.env.PORT || 3000;
 dotenv.config();
-
-dotenv.config();
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 app.use(cors());
