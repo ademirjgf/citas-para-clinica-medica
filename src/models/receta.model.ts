@@ -1,4 +1,5 @@
 import { pool } from "../config/db.js";
+
 export interface Receta {
   id: number;
   citaId: number;
@@ -17,6 +18,14 @@ export interface CrearRecetaInput {
 export interface ActualizarRecetaInput {
   medicamentos?: string[];
   indicaciones?: string;
+}
+
+export interface paginaResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 function mapRow(row: any): Receta {
@@ -69,5 +78,52 @@ export const RecetaModel = {
   delete: async (id: number): Promise<boolean> => {
     const result = await pool.query("DELETE FROM recetas WHERE id = $1", [id]);
     return (result.rowCount ?? 0) > 0;
+  },
+
+  findWithFilter: async (
+    page: number,
+    limit: number,
+    citaId?: number,
+    search?: string,
+  ): Promise<paginaResult<Receta>> => {
+    const offset = (page - 1) * limit;
+    const condiciones: string[] = [];
+    const valores: any[] = [];
+    let contador = 1;
+
+    if (citaId) {
+      condiciones.push(`cita_id = $${contador}`);
+      valores.push(citaId);
+      contador++;
+    }
+
+    if (search) {
+      condiciones.push(
+        `EXISTS (SELECT 1 FROM unnest(medicamentos) AS med WHERE med ILIKE $${contador})`
+      );
+      valores.push(`%${search}%`);
+      contador++;
+    }
+
+    const whereClause = condiciones.length > 0 ? `WHERE ${condiciones.join(" AND ")}` : "";
+
+    const totalResult = await pool.query(
+      `SELECT COUNT(*) FROM recetas ${whereClause}`,
+      valores,
+    );
+    const total = Number(totalResult.rows[0].count);
+
+    const dataResult = await pool.query(
+      `SELECT * FROM recetas ${whereClause} ORDER BY id LIMIT $${contador} OFFSET $${contador + 1}`,
+      [...valores, limit, offset],
+    );
+
+    return {
+      data: dataResult.rows.map(mapRow),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   },
 };
