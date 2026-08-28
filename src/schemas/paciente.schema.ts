@@ -26,6 +26,16 @@ export const createPatientSchema = z.object({
   seguro_medico: z.boolean().default(true),
 });
 
+export interface pacienteQueryParams {
+  page?: string;
+  limit?: string;
+  searchName?: string;
+  searchLstName?: string;
+  minAge?: string;
+  maxAge?: string;
+  seguro_medico?: string;
+}
+
 export const updatePatientSchema = z.object({
   nombre: z
     .string({ error: "El nombre debe ser texto" })

@@ -1,5 +1,6 @@
-import { create } from "node:domain";
 import { pool } from "../config/db.js";
+import type { updatePatientSchema } from "../schemas/paciente.schema.js";
+import type z from "zod";
 
 //TIPADO DE LA TABLA
 export interface Paciente {
@@ -10,15 +11,17 @@ export interface Paciente {
   telefono: string;
   seguro_medico: boolean;
 }
+
+export interface paginaResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 // apartir de el tipado crear otros types
 export type CreatePatientInput = Omit<Paciente, "id">;
-export type UpdatePatientInput = {
-  nombre?: string;
-  apellidos?: string;
-  edad?: number;
-  telefono?: string;
-  seguro_medico?: boolean;
-};
+export type UpdatePatientInput = z.infer<typeof updatePatientSchema>;
 
 //FUNCIONES Q CONSULTAN A LA BASE DE DATOS
 export const PatientModel = {
@@ -51,7 +54,7 @@ export const PatientModel = {
   create: async (dato: CreatePatientInput): Promise<Paciente> => {
     const { nombre, apellidos, edad, telefono, seguro_medico } = dato;
     const query =
-      "INSERT INTO pacientes (nombre , apellidos, edad, telefono, seguro_medico) VALUES ($1,$2,$3,$4,$5) RETURNING *;";
+      "INSERT INTO pacientes (nombre , apellidos, edad, telefono, seguro_medico) VALUES ($1,$2,$3,$4,true) RETURNING *;";
     const { rows } = await pool.query(query, [
       nombre,
       apellidos,
@@ -122,5 +125,75 @@ export const PatientModel = {
       [id],
     );
     return (rowCount ?? 0) > 0;
+  },
+  findByName: async (name: string): Promise<Paciente | null> => {
+    const { rows } = await pool.query<Paciente>(
+      "SELECT * FROM pacientes WHERE LOWER(nombre) = LOWER($1);",
+      [name],
+    );
+    return rows[0] || null;
+  },
+  findwithFilter: async (
+    page: number = 1,
+    limit: number = 10,
+    searchName?: string,
+    searchLstName?: string,
+    minAge?: number,
+    maxAge?: number,
+    seguro_medico?: boolean,
+  ): Promise<paginaResult<Paciente>> => {
+    const condition: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    //construccion de condiciones
+    if (searchName) {
+      condition.push(`nombre ILIKE $${paramIndex}`);
+      paramIndex++;
+      values.push(`%${searchName}%`);
+    }
+    if (searchLstName) {
+      condition.push(`apellidos ILIKE $${paramIndex}`);
+      paramIndex++;
+      values.push(`%${searchLstName}%`);
+    }
+    if (minAge !== undefined) {
+      condition.push(`edad >= $${paramIndex}`);
+      paramIndex++;
+      values.push(minAge);
+    }
+    if (maxAge) {
+      condition.push(`edad <= $${paramIndex}`);
+      paramIndex++;
+      values.push(maxAge);
+    }
+    if (seguro_medico !== undefined) {
+      condition.push(`seguro_medico = $${paramIndex}`);
+      paramIndex++;
+      values.push(seguro_medico);
+    }
+
+    const WhereTogether =
+      condition.length > 0 ? ` WHERE ${condition.join(` AND `)}` : "";
+
+    //conteo de pacientes
+    const contQuery = `SELECT COUNT(*) FROM pacientes ${WhereTogether}`;
+    const countResult = await pool.query(contQuery, values);
+    const total = Number(countResult.rows[0].count);
+    //consulta de datos con limit y offset
+    const offset = (page - 1) * limit;
+    //Agregamos limit y offset
+    const dataValues = [...values, limit, offset];
+    const query = `SELECT * FROM pacientes ${WhereTogether} ORDER BY id ASC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
+
+    const { rows } = await pool.query(query, dataValues);
+
+    return {
+      data: rows,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+    };
   },
 };

@@ -7,30 +7,19 @@ import {
   createPatientSchema,
   updatePatientSchema,
 } from "../schemas/paciente.schema.js";
-import type {
-  createCitaInput,
-  updateCitaInput,
-} from "../models/citas.model.js";
+
+import { pacientService } from "../services/paciente.service.js";
 
 export async function getPatients(req: Request, res: Response) {
+  // #swagger.tags = ['Pacientes']
+  // #swagger.summary = 'Ver todos los Pacientes'
   try {
-    //LEER el parámetro desde la URL
-    const { seguro_medico } = req.query;
-    const filtro =
-      typeof seguro_medico === "string" ? seguro_medico : undefined;
-
-    //ENVIARLO al modelo
-    const paciente = await PatientModel.findAll(filtro);
-
-    res.json({
-      totalPacientes: paciente.length,
-      data: paciente,
-    });
-  } catch (error: any) {
-    console.error("error al consultar PostgreSQL:", error.message);
+    const result = await pacientService.getPatienFilter(req.query);
+    res.json(result);
+  } catch (error) {
+    console.error("error al consultar PostgreSQL:");
     res.status(500).json({
       message: "error al intentar conectar a la base de datos",
-      detalle: error.message, // ✅ Para ver el error real
     });
   }
 }
@@ -62,7 +51,14 @@ export async function postPatients(req: Request, res: Response) {
     if (!resultado.success) {
       return res.status(400).json({ error: resultado.error.issues });
     }
-    const nuevoPaciente = await PatientModel.create(resultado.data);
+    const { nombre, apellidos, edad, telefono, seguro_medico } = resultado.data;
+    const nuevoPaciente = await pacientService.createPatient(
+      nombre,
+      apellidos,
+      edad,
+      telefono,
+      seguro_medico,
+    );
     res.status(201).json({ data: nuevoPaciente });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
