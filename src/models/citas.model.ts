@@ -2,6 +2,7 @@ import type { z } from "zod";
 import { pool } from "../config/db.js";
 import type { updateCitaSchema } from "../schemas/citas.schema.js";
 
+
 export interface citaMedica{
     id: number;
     paciente_id: number;
@@ -9,6 +10,14 @@ export interface citaMedica{
     fecha_hora: string;
     motivo: string;
     estado: string;
+}
+
+export interface paginaResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export type createCitaInput = Omit<citaMedica, "id">;
@@ -75,4 +84,85 @@ export const citaModel = {
     );
     return (rowCount ?? 0) > 0;
   },
+  findByName: async (estado: string): Promise<citaMedica | null> => {
+    const { rows } = await pool.query<citaMedica>(
+      "SELECT * FROM citas WHERE LOWER(estado) = LOWER($1);",
+      [estado],
+    );
+    return rows[0] || null;
+  },
+    findWhitFilter: async (
+      page: number = 1,
+      limit: number = 10,
+      search?: string,
+      minFecha?: string,
+      maxFecha?: string,
+    ): Promise<paginaResult<citaMedica>> => {
+
+    const conditions: string[] = [];
+    const values: any[] = [];
+    let paramIndex = 1;
+
+    // Filtro por estado
+    if (search) {
+      conditions.push(`estado ILIKE $${paramIndex}`);
+      paramIndex++;
+      values.push(`%${search}%`);
+    }
+
+    // Fecha mínima
+    if (minFecha !== undefined) {
+      conditions.push(`fecha_hora >= $${paramIndex}`);
+      paramIndex++;
+      values.push(minFecha);
+    }
+
+    // Fecha máxima
+    if (maxFecha !== undefined) {
+      conditions.push(`fecha_hora <= $${paramIndex}`);
+      paramIndex++;
+      values.push(maxFecha);
+    }
+
+    // WHERE
+    const whereUnited =
+      conditions.length > 0
+        ? `WHERE ${conditions.join(" AND ")}`
+        : "";
+
+    // COUNT
+    const countQuery = `
+      SELECT COUNT(*)
+      FROM citas
+      ${whereUnited}
+    `;
+
+    const countResult = await pool.query(countQuery, values);
+
+    const total = Number(countResult.rows[0].count);
+
+    // Paginación
+    const offset = (page - 1) * limit;
+
+    const dataValues = [...values, limit, offset];
+
+    const dataQuery = `
+      SELECT *
+      FROM citas
+      ${whereUnited}
+      ORDER BY id ASC
+      LIMIT $${paramIndex}
+      OFFSET $${paramIndex + 1}
+    `;
+
+    const { rows } = await pool.query(dataQuery, dataValues);
+
+    return {
+      data: rows,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+    };
+  }
 }
